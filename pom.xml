@@ -34,6 +34,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.netty</groupId>
             <artifactId>netty</artifactId>
             <version>3.2.4.Final</version>
@@ -71,6 +77,18 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>nx-releases</id>
+            <name>Nexus Releases</name>
+            <url>${nexus.releases.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>nx-snapshots</id>
+            <name>Nexus Snapshots</name>
+            <url>${nexus.snapshots.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <profiles>
         <profile>

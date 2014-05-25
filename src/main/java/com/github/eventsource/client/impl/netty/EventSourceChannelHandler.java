@@ -19,6 +19,8 @@ import org.jboss.netty.util.TimerTask;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -32,6 +34,7 @@ public class EventSourceChannelHandler extends SimpleChannelUpstreamHandler impl
     private final EventSourceClient client;
     private final URI uri;
     private final EventStreamParser messageDispatcher;
+    private final Map<String,String> customRequestHeaders = new HashMap<String,String>();
 
     private static final Timer TIMER = new HashedWheelTimer();
     private Channel channel;
@@ -65,6 +68,10 @@ public class EventSourceChannelHandler extends SimpleChannelUpstreamHandler impl
         request.addHeader(Names.CACHE_CONTROL, "no-cache");
         if (lastEventId != null) {
             request.addHeader("Last-Event-ID", lastEventId);
+        }
+        // add any custom headers that have been set
+        for (String name : customRequestHeaders.keySet()) {
+            request.addHeader(name, customRequestHeaders.get(name));
         }
         e.getChannel().write(request);
         channel = e.getChannel();
@@ -153,6 +160,16 @@ public class EventSourceChannelHandler extends SimpleChannelUpstreamHandler impl
             channel.getCloseFuture().await();
         }
         return this;
+    }
+
+    /**
+     * Sets a custom HTTP header that will be used when the request is made to establish the SSE channel.
+     *
+     * @param name the HTTP header name
+     * @param value the header value
+     */
+    public void setCustomRequestHeader(String name, String value) {
+        customRequestHeaders.put(name, value);
     }
 
     private void reconnect() {
